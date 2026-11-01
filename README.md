@@ -15,6 +15,9 @@ Partilha de ecrã para até 4 amigos, direto de PC para PC, numa página estáti
 
 Todos podem partilhar ao mesmo tempo. No telemóvel dá para ver, mas não para partilhar (os browsers móveis não deixam).
 
+Quem já pôs o nome uma vez e abre o link de uma sala entra direto. Quando o site é atualizado, a página
+recarrega sozinha no espaço de um minuto e volta à mesma sala. Quem está a partilhar só recarrega quando parar.
+
 ## Como funciona
 
 - **Sinalização:** [Trystero](https://github.com/dmotz/trystero) `0.26.0` com a rede Nostr (relés públicos). Só serve para os browsers se encontrarem.
@@ -24,6 +27,9 @@ Todos podem partilhar ao mesmo tempo. No telemóvel dá para ver, mas não para 
 ## Decisões
 
 - **2026-11-01**: só ecrã, sem voz (a voz fica no Discord). Sinalização com Trystero/Nostr, sem servidor nem conta. Alojado em M4RQX/sofa (GitHub Pages).
+- **2026-11-01, atualização automática**: cada página compara de minuto a minuto o conteúdo de `index.html`, `app.js` e `style.css`
+  com o servidor. Se mudou, recarrega e volta à sala. Para não cortar o ecrã a quem partilha, essa pessoa só recarrega quando parar.
+  "Sair" tira a sala do link, para não voltar a entrar sozinho.
 - **Sem servidor TURN**: em redes que bloqueiam ligações diretas (algumas redes móveis ou de empresa) uma pessoa pode não conseguir ligar-se. Se isso acontecer, adiciona-se um TURN (ex.: Cloudflare, plano gratuito) em `turnConfig`.
 
 ## Correr localmente

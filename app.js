@@ -18,6 +18,10 @@ const store = {
   get(k) { try { return localStorage.getItem(k) } catch { return null } },
   set(k, v) { try { localStorage.setItem(k, v) } catch { /* sem storage */ } },
 }
+const session = {
+  get(k) { try { return sessionStorage.getItem(k) } catch { return null } },
+  set(k, v) { try { sessionStorage.setItem(k, v) } catch { /* sem storage */ } },
+}
 
 // ---------- estado ----------
 let room = null
@@ -39,6 +43,10 @@ joinBtn.textContent = 'Entrar na sala'
 
 $('#joinForm').addEventListener('submit', e => {
   e.preventDefault()
+  join()
+})
+
+function join() {
   const name = nameInput.value.trim().slice(0, 20)
   const code = cleanRoom(roomInput.value)
   if (!name || code.length < 3) return
@@ -46,7 +54,7 @@ $('#joinForm').addEventListener('submit', e => {
   me.name = name
   history.replaceState(null, '', `#${code}`)
   enterRoom(code)
-})
+}
 
 function randomRoom() {
   const abc = 'abcdefghjkmnpqrstuvwxyz23456789'
@@ -124,6 +132,7 @@ function enterRoom(code) {
   setInterval(updateStats, 1000)
   setInterval(updatePings, 3000)
   setInterval(updateNet, 1500)
+  setInterval(checkVersion, 60_000)
   updateNet()
   render()
 }
@@ -141,6 +150,7 @@ const myHello = () => ({ name: me.name, sharing: me.sharing })
 function leave() {
   stopShare()
   room?.leave()
+  history.replaceState(null, '', location.pathname + location.search) // sem a sala no link, não volta a entrar sozinho
   location.reload()
 }
 $('#leaveBtn').addEventListener('click', leave)
@@ -225,6 +235,7 @@ function stopShare() {
   removeTile('self')
   setShareUI(false)
   render()
+  if (updatePending) reloadForUpdate()
 }
 
 function setShareUI(on) {
@@ -435,6 +446,42 @@ async function copyLink() {
 $('#copyLink').addEventListener('click', copyLink)
 $('#emptyCopy').addEventListener('click', copyLink)
 
+// ---------- versão nova do site → recarrega e volta à sala ----------
+// A primeira leitura vem da cache (é a versão que está a correr); as seguintes vão ao servidor.
+// Quem está a partilhar só recarrega quando parar, para não lhe cortar o ecrã.
+const SITE_FILES = ['./', 'app.js', 'style.css']
+let siteVersion = null
+let updatePending = false
+
+async function siteHash(cache) {
+  const texts = await Promise.all(SITE_FILES.map(async f => {
+    const r = await fetch(f, { cache })
+    if (!r.ok) throw new Error(`${f}: ${r.status}`)
+    return r.text()
+  }))
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texts.join('\n')))
+  return Array.from(new Uint8Array(buf).slice(0, 8), b => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function checkVersion() {
+  if (updatePending) return
+  try {
+    if (!siteVersion) { siteVersion = await siteHash('force-cache'); return }
+    if (await siteHash('no-cache') === siteVersion) return
+  } catch (e) { console.debug('checkVersion', e); return }
+  // evita recarregar em ciclo enquanto o deploy ainda se espalha pelo CDN
+  if (Date.now() - Number(session.get('sofa-updated-at') || 0) < 120_000) return
+  updatePending = true
+  if (myStream) toast('Há uma versão nova do Sofá. Atualiza sozinho quando parares de partilhar.', '', 8000)
+  else reloadForUpdate()
+}
+
+function reloadForUpdate() {
+  session.set('sofa-updated-at', String(Date.now()))
+  toast('Versão nova do Sofá — a recarregar…')
+  setTimeout(() => location.reload(), 1200)
+}
+
 function toast(text, kind = '', ms = 3500) {
   const el = document.createElement('div')
   el.className = `toast ${kind}`
@@ -442,3 +489,8 @@ function toast(text, kind = '', ms = 3500) {
   $('#toasts').append(el)
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 350) }, ms)
 }
+
+// ---------- arranque ----------
+checkVersion().then(checkVersion)
+// Quem já tem nome e abre o link de uma sala (ou a página recarrega) entra direto.
+if (location.hash.length > 1 && nameInput.value.trim()) join()
