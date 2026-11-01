@@ -114,7 +114,9 @@ function enterRoom(code) {
     p.sharing = true
     stream.addEventListener('removetrack', () => {
       if (!stream.getVideoTracks().some(t => t.readyState === 'live')) dropStream(peerId)
+      else refreshTile(peerId)
     })
+    stream.addEventListener('addtrack', () => refreshTile(peerId)) // o som pode chegar depois do vídeo
     showTile(peerId)
     render()
   }
@@ -149,7 +151,7 @@ const qualitySel = $('#quality')
 for (const [k, q] of Object.entries(QUALITY)) qualitySel.add(new Option(q.label, k))
 qualitySel.value = QUALITY[store.get('sofa-quality')] ? store.get('sofa-quality') : 'nitido'
 const audioChk = $('#withAudio')
-audioChk.checked = store.get('sofa-audio') === '1'
+audioChk.checked = store.get('sofa-audio') !== '0'
 
 const canShare = !!navigator.mediaDevices?.getDisplayMedia
 const shareBtn = $('#shareBtn')
@@ -206,7 +208,7 @@ async function startShare() {
   setShareUI(true)
   render()
   if (withAudio && !stream.getAudioTracks().length) {
-    toast('O som não veio. No Chrome/Edge, partilha um separador ou o ecrã inteiro e marca “Partilhar áudio”.', 'warn', 7000)
+    toast('O som não veio. Janelas soltas não mandam som: partilha um separador ou o ecrã inteiro e deixa ligado “Partilhar áudio” na janela do Chrome/Edge.', 'warn', 9000)
   } else if (stream.getAudioTracks().length && vt.getSettings().displaySurface === 'monitor') {
     toast('Com o ecrã inteiro vai o som todo do PC, incluindo as vozes da call. Para mandar só o som de um vídeo, partilha esse separador.', 'warn', 8000)
   }
@@ -393,7 +395,8 @@ function updateStats() {
     const last = frameCount.get(v) ?? total
     frameCount.set(v, total)
     const fps = Math.max(0, total - last)
-    t.querySelector('.stats').textContent = v.videoWidth ? `${v.videoWidth}×${v.videoHeight} · ${fps} fps` : 'a ligar…'
+    const sound = v.srcObject?.getAudioTracks().length ? '' : ' · 🔇 sem som'
+    t.querySelector('.stats').textContent = v.videoWidth ? `${v.videoWidth}×${v.videoHeight} · ${fps} fps${sound}` : 'a ligar…'
   }
 }
 

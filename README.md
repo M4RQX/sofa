@@ -8,8 +8,9 @@ Partilha de ecrã para até 4 amigos, direto de PC para PC, numa página estáti
 2. **Copiar link** e manda à malta. Quem abrir o link entra na mesma sala.
 3. **Partilhar ecrã** → escolhe ecrã inteiro, janela ou separador.
    - **Qualidade:** Nítido (texto/código, 1080p 30 fps), Fluido (jogos/vídeos, 1080p 60 fps), Leve (720p 30 fps).
-   - **Com som:** no Chrome/Edge, partilha um separador ou o ecrã inteiro e marca "Partilhar áudio".
-     Com o ecrã inteiro vai o som todo do PC (incluindo a call do Discord), por isso para vídeos é melhor partilhar o separador.
+   - **Com som** (ligado por defeito): no Chrome/Edge, partilha um separador ou o ecrã inteiro e deixa ligado "Partilhar áudio".
+     Janelas soltas (uma app) não mandam som. Com o ecrã inteiro vai o som todo do PC (incluindo a call do Discord),
+     por isso para vídeos é melhor partilhar o separador. Um ecrã que chega sem som mostra "🔇 sem som".
 4. Nos ecrãs dos outros: ⤢ foca um ecrã, ⛶ põe em ecrã inteiro (ou duplo clique), 🔊 liga/desliga o som.
 
 Todos podem partilhar ao mesmo tempo. No telemóvel dá para ver, mas não para partilhar (os browsers móveis não deixam).
