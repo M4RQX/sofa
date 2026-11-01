@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sofá · partilha de ecrã</title>
+<meta name="description" content="Partilha de ecrã para até 4 amigos, direto de PC para PC.">
+<meta property="og:title" content="Sofá 🛋️">
+<meta property="og:description" content="Entra na sala e partilha o teu ecrã com a malta.">
+<meta name="theme-color" content="#141016">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛋️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+
+<!-- entrada -->
+<main id="lobby" class="lobby">
+  <div class="lobby-card">
+    <div class="logo" aria-hidden="true">🛋️</div>
+    <h1>Sofá</h1>
+    <p class="tagline">Partilha de ecrã para a malta. Até 4 no sofá, direto de PC para PC.</p>
+
+    <form id="joinForm" class="join" autocomplete="off">
+      <label class="field">
+        <span>O teu nome</span>
+        <input id="nameInput" maxlength="20" required placeholder="ex.: Emanuel" autocomplete="nickname">
+      </label>
+      <label class="field">
+        <span>Sala</span>
+        <span class="room-row">
+          <input id="roomInput" maxlength="32" required pattern="[a-z0-9\-]{3,32}" spellcheck="false">
+          <button type="button" id="newRoom" class="btn ghost icon" title="Gerar sala nova" aria-label="Gerar sala nova">🎲</button>
+        </span>
+      </label>
+      <button class="btn primary big" type="submit" id="joinBtn" disabled>A carregar…</button>
+    </form>
+
+    <p class="fine">O vídeo vai direto entre vocês, cifrado. Quem tiver o link entra.</p>
+  </div>
+</main>
+
+<!-- sala -->
+<div id="app" class="app" hidden>
+  <header class="topbar">
+    <div class="brand"><span aria-hidden="true">🛋️</span> Sofá</div>
+    <div class="room-chip">
+      <span class="label">sala</span>
+      <code id="roomCode"></code>
+      <button id="copyLink" class="btn ghost sm">Copiar link</button>
+    </div>
+    <ul id="people" class="people" aria-label="Pessoas na sala"></ul>
+    <span id="netStatus" class="net" data-state="wait">a ligar…</span>
+    <button id="leaveBtn" class="btn ghost sm">Sair</button>
+  </header>
+
+  <section id="stage" class="stage" data-count="0" aria-label="Ecrãs partilhados">
+    <div id="empty" class="empty">
+      <div class="empty-icon" aria-hidden="true">📺</div>
+      <p id="emptyTitle" class="empty-title">Estás sozinho no sofá</p>
+      <p id="emptyText" class="empty-text">Copia o link e manda-o à malta.</p>
+      <button id="emptyCopy" class="btn ghost">Copiar link da sala</button>
+    </div>
+  </section>
+
+  <footer class="dock">
+    <label class="select">
+      <span class="sr">Qualidade</span>
+      <select id="quality"></select>
+    </label>
+    <label class="toggle" title="Partilhar também o som (Chrome/Edge)">
+      <input type="checkbox" id="withAudio">
+      <span class="track" aria-hidden="true"></span>
+      com som
+    </label>
+    <button id="shareBtn" class="btn primary share">
+      <span class="live" aria-hidden="true"></span>
+      <span id="shareLabel">Partilhar ecrã</span>
+    </button>
+  </footer>
+</div>
+
+<template id="tileTpl">
+  <figure class="tile">
+    <video autoplay playsinline></video>
+    <button class="tap" hidden>🔊 toca para ouvir</button>
+    <figcaption>
+      <span class="who"><span class="dot"></span><span class="name"></span></span>
+      <span class="stats"></span>
+    </figcaption>
+    <div class="actions">
+      <button class="btn glass sm vol" title="Som" aria-label="Ligar/desligar som" hidden>🔊</button>
+      <button class="btn glass sm focus" title="Focar este ecrã" aria-label="Focar este ecrã">⤢</button>
+      <button class="btn glass sm fs" title="Ecrã inteiro" aria-label="Ecrã inteiro">⛶</button>
+    </div>
+  </figure>
+</template>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+</body>
+</html>
